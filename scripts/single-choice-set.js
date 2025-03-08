@@ -115,7 +115,13 @@ H5P.SingleChoiceSet = (function ($, UI, Question, SingleChoice, SolutionView, Re
     self.progressbar.setProgress(this.currentIndex);
 
     for (var i = 0; i < this.options.choices.length; i++) {
-      var choice = new SingleChoice(this.options.choices[i], i, this.contentId, this.options.behaviour.autoContinue);
+      var choice = new SingleChoice(
+        this.options.choices[i],
+        i,
+        this.contentId,
+        this.options.behaviour.autoContinue,
+        this.userResponses[i]
+      );
       choice.on('finished', this.handleQuestionFinished, this);
       choice.on('alternative-selected', this.handleAlternativeSelected, this);
       choice.appendTo(this.$choices, (i === this.currentIndex));
@@ -201,7 +207,7 @@ H5P.SingleChoiceSet = (function ($, UI, Question, SingleChoice, SolutionView, Re
 
     self.triggerXAPI('interacted');
 
-    // Read and set a11y friendly texts 
+    // Read and set a11y friendly texts
     self.readA11yFriendlyText(event.data.index, event.data.currentIndex)
 
     if (!this.muted) {
@@ -530,7 +536,7 @@ H5P.SingleChoiceSet = (function ($, UI, Question, SingleChoice, SolutionView, Re
         },
         appendTo: self.$container
       });
-      self.toggleNextButton(false);
+      self.toggleNextButton(self.userResponses?.length);
     }
 
     if (self.options.behaviour.soundEffectsEnabled) {
@@ -833,6 +839,8 @@ H5P.SingleChoiceSet = (function ($, UI, Question, SingleChoice, SolutionView, Re
     H5P.Transition.onTransitionEnd(this.$choices, function () {
       self.removeFeedback();
     }, 600);
+
+    self.toggleNextButton(false);
   };
 
   /**
@@ -853,9 +861,9 @@ H5P.SingleChoiceSet = (function ($, UI, Question, SingleChoice, SolutionView, Re
 
   /**
    * Generate A11y friendly text
-   * 
+   *
    * @param  {number} index
-   * @param  {number} currentIndex 
+   * @param  {number} currentIndex
    */
   SingleChoiceSet.prototype.readA11yFriendlyText = function (index, currentIndex) {
     var self = this;
